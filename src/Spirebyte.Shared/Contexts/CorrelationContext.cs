@@ -1,6 +1,6 @@
 ﻿namespace Spirebyte.Shared.Contexts;
 
-internal class CorrelationContext
+public class CorrelationContext
 {
     public string CorrelationId { get; set; }
     public string SpanContext { get; set; }

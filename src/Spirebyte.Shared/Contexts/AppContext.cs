@@ -5,7 +5,7 @@ using Spirebyte.Shared.Contexts.Interfaces;
 
 namespace Spirebyte.Shared.Contexts;
 
-internal class AppContext : IAppContext
+public class AppContext : IAppContext
 {
     public AppContext() : this(Guid.NewGuid().ToString("N"))
     {

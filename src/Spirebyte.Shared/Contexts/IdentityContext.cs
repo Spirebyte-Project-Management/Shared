@@ -3,7 +3,7 @@ using Spirebyte.Shared.Contexts.Interfaces;
 
 namespace Spirebyte.Shared.Contexts;
 
-internal class IdentityContext : IIdentityContext
+public class IdentityContext : IIdentityContext
 {
     private IdentityContext()
     {

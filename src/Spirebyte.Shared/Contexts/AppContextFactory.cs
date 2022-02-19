@@ -6,7 +6,7 @@ using Spirebyte.Shared.Contexts.Interfaces;
 
 namespace Spirebyte.Shared.Contexts;
 
-internal sealed class AppContextFactory : IAppContextFactory
+public sealed class AppContextFactory : IAppContextFactory
 {
     private readonly ICorrelationContextAccessor _contextAccessor;
     private readonly ICorrelationIdFactory _correlationIdFactory;

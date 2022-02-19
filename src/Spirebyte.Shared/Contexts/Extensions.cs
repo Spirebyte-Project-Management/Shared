@@ -15,7 +15,7 @@ public static class Extensions
         return services;
     }
 
-    internal static CorrelationContext? GetCorrelationContext(this IHttpContextAccessor accessor)
+    public static CorrelationContext? GetCorrelationContext(this IHttpContextAccessor accessor)
     {
         if (accessor.HttpContext is null) return null;
 
