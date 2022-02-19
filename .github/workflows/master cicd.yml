@@ -40,5 +40,5 @@ jobs:
     - name: Publish Spirebyte.Shared
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:
-          PROJECT_FILE_PATH: $PROJECT
+          PROJECT_FILE_PATH: src/Spirebyte.Shared/Spirebyte.Shared.csproj
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}
