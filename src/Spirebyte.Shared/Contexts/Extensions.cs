@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Convey.HTTP;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Open.Serialization.Json;
 using Spirebyte.Shared.Contexts.Interfaces;
@@ -12,6 +13,9 @@ public static class Extensions
         services.AddTransient<IAppContextFactory, AppContextFactory>();
         services.AddTransient(ctx => ctx.GetRequiredService<IAppContextFactory>().Create());
 
+        services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
+        services.AddSingleton<ICorrelationContextFactory, CorrelationContextFactory>();
+        
         return services;
     }
 
