@@ -1,4 +1,6 @@
-﻿using Spirebyte.Services.Activities.Core.ValueObjects;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Spirebyte.Services.Activities.Core.ValueObjects;
 
 namespace Spirebyte.Shared.Changes;
 

@@ -1,4 +1,6 @@
-﻿using Convey.HTTP;
+﻿using System;
+using System.Linq;
+using Convey.HTTP;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Open.Serialization.Json;
@@ -13,9 +15,14 @@ public static class Extensions
         services.AddTransient<IAppContextFactory, AppContextFactory>();
         services.AddTransient(ctx => ctx.GetRequiredService<IAppContextFactory>().Create());
 
+        return services;
+    }
+    
+    public static IServiceCollection AddCorrelationContextFactories(this IServiceCollection services)
+    {
         services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
         services.AddSingleton<ICorrelationContextFactory, CorrelationContextFactory>();
-        
+
         return services;
     }
 

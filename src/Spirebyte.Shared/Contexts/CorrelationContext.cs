@@ -1,4 +1,7 @@
-﻿namespace Spirebyte.Shared.Contexts;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Spirebyte.Shared.Contexts;
 
 public class CorrelationContext
 {

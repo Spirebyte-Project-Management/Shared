@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Spirebyte.Shared.Contexts.Interfaces;
 
 public interface IIdentityContext
