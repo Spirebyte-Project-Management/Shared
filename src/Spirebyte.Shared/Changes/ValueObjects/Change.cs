@@ -1,4 +1,4 @@
-﻿namespace Spirebyte.Services.Activities.Core.ValueObjects;
+﻿namespace Spirebyte.Shared.Changes.ValueObjects;
 
 public class Change
 {
