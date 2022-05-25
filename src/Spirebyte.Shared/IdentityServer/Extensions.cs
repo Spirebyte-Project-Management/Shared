@@ -173,15 +173,22 @@ public static class Extensions
     /// </summary>
     /// <param name="introspectionScheme">Scheme name of the introspection handler</param>
     /// <returns></returns>
-    public static Func<HttpContext, string> ForwardReferenceTokenWithBasic(string introspectionScheme = "Introspection",
+    public static Func<HttpContext, string?> ForwardReferenceTokenWithBasic(string introspectionScheme = "Introspection",
         string basicIntrospectionScheme = "Basic-introspection")
     {
         return context =>
         {
             var (str3, str4) = Selector.GetSchemeAndCredential(context);
             if (str3.Equals("Bearer", StringComparison.OrdinalIgnoreCase) && !str4.Contains("."))
+            {
                 return introspectionScheme;
-            return basicIntrospectionScheme;
+            }
+            if (str3.Equals("Basic", StringComparison.OrdinalIgnoreCase))
+            {
+                return basicIntrospectionScheme;
+            }
+
+            return null;
         };
     }
 
