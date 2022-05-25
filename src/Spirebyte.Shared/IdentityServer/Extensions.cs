@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection;
 using Spirebyte.Shared.IdentityServer.Options;
 
 namespace Spirebyte.Shared.IdentityServer;
@@ -166,18 +167,18 @@ public static class Extensions
             })
  
             // reference tokens
-            .AddOAuth2Introspection("introspection", o =>
+            .AddExtendedOAuth2Introspection("introspection", o =>
             {
                 o.Authority = options.Authority;
-                
+                o.Challenge = "Bearer";
                 o.ClientId = options.ClientId;
                 o.ClientSecret = options.ClientSecret;
             })
             // reference tokens
-            .AddOAuth2Introspection("basic-introspection", o =>
+            .AddExtendedOAuth2Introspection("basic-introspection", o =>
             {
                 o.TokenRetriever = TokenRetrieval.BasicFromAuthorizationHeader();
-                
+                o.Challenge = "Basic";
                 o.Authority = options.Authority;
                 o.ClientId = options.ClientId;
                 o.ClientSecret = options.ClientSecret;

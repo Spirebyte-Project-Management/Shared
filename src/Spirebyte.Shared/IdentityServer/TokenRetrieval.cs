@@ -18,14 +18,13 @@ public static class TokenRetrieval
 
             if (authorization.StartsWith(scheme + " ", StringComparison.OrdinalIgnoreCase))
             {
-                return authorization.Substring(scheme.Length + 1).Trim();
-            }
-            
-            var authBase64 = Encoding.UTF8.GetString(Convert.FromBase64String(authorization));
-            var authSplit = authBase64.Split(Convert.ToChar(":"), 2);
-            if (authSplit.Length > 1)
-            {
-                return authSplit[1];
+                var authToken = authorization.Substring(scheme.Length + 1).Trim();
+                var authBase64 = Encoding.UTF8.GetString(Convert.FromBase64String(authToken));
+                var authSplit = authBase64.Split(Convert.ToChar(":"), 2);
+                if (authSplit.Length > 1)
+                {
+                    return authSplit[1];
+                }
             }
 
             return null;
