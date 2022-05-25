@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using IdentityModel;
 using Spirebyte.Shared.Contexts.Interfaces;
 
 namespace Spirebyte.Shared.Contexts;
@@ -36,7 +37,7 @@ public class IdentityContext : IIdentityContext
         if (principal?.Identity is null || string.IsNullOrWhiteSpace(principal.Identity.Name)) return;
 
         IsAuthenticated = principal.Identity?.IsAuthenticated is true;
-        Id = Guid.Parse(principal.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+        Id = Guid.Parse(principal.Claims.SingleOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value ?? string.Empty);
         Role = principal.Claims.SingleOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
         Claims = principal.Claims.GroupBy(x => x.Type)
             .ToDictionary(x => x.Key, x => x.Select(c => c.Value.ToString()));
