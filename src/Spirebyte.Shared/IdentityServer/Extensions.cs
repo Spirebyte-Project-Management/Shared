@@ -1,8 +1,10 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Convey;
+using IdentityModel;
 using IdentityModel.AspNetCore.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Spirebyte.Shared.IdentityServer.Options;
@@ -96,5 +98,21 @@ public static class Extensions
             });
 
         return builder;
+    }
+
+    public static AuthorizationOptions AddEitherOrScopePolicy(this AuthorizationOptions options, string policyName, string firstScope, string secondScope)
+    {
+        options.AddPolicy(policyName, p =>
+        {
+            p.RequireAuthenticatedUser();
+            p.RequireScope(firstScope, secondScope);
+        });
+
+        return options;
+    }
+    
+    public static AuthorizationPolicyBuilder RequireEitherOrScope(this AuthorizationPolicyBuilder builder, string firstScope, string secondScope)
+    {
+        return builder.RequireAssertion(context => context.User.HasClaim(c => c.Type == JwtClaimTypes.Scope && (c.Value == firstScope || c.Value == secondScope)));
     }
 }
