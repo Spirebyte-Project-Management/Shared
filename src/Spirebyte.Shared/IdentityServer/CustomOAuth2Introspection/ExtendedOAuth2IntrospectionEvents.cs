@@ -1,11 +1,7 @@
 ﻿// Copyright (c) Dominick Baier & Brock Allen. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-using IdentityModel.AspNetCore.OAuth2Introspection;
 using Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context;
-using AuthenticationFailedContext = Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context.AuthenticationFailedContext;
-using TokenValidatedContext = Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context.TokenValidatedContext;
-using UpdateClientAssertionContext = Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context.UpdateClientAssertionContext;
 
 namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection
 {
