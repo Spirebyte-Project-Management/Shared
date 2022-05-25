@@ -147,6 +147,8 @@ public static class Extensions
 
                 optionsFactory?.Invoke(o);
 
+                o.Challenge = "Basic";
+
                 o.ForwardDefaultSelector = ForwardReferenceTokenWithBasic("introspection", "basic-introspection");
             })
 
@@ -170,7 +172,7 @@ public static class Extensions
 
         return builder;
     }
-
+    
     /// <summary>
     ///     Provides a forwarding func for JWT vs reference tokens (based on existence of dot in token)
     /// </summary>
