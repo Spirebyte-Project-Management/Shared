@@ -1,4 +1,5 @@
-﻿using Convey;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Convey;
 using IdentityModel;
 using IdentityModel.AspNetCore.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +22,8 @@ public static class Extensions
         Action<JwtBearerOptions> optionsFactory = null, bool withBasic = false)
     {
         if (string.IsNullOrWhiteSpace(sectionName)) sectionName = SectionName;
+
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
         var options = builder.GetOptions<JwtOptions>(sectionName);
         return withBasic
