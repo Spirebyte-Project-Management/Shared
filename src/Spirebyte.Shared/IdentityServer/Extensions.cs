@@ -200,11 +200,7 @@ public static class Extensions
             {
                 return introspectionScheme;
             }
-            if (str3.Equals("Basic", StringComparison.OrdinalIgnoreCase) && !str4.Contains(":"))
-            {
-                return basicIntrospectionScheme;
-            }
-            return string.Empty;
+            return basicIntrospectionScheme;
         };
     }
     
