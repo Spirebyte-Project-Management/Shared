@@ -5,6 +5,7 @@ using IdentityModel;
 using IdentityModel.AspNetCore.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Spirebyte.Shared.IdentityServer.Options;
@@ -64,6 +65,8 @@ public static class Extensions
         {
             tokenValidationParameters.RoleClaimType = options.RoleClaimType;
         }
+        
+        builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         
         builder.Services.AddAuthentication("token")
  
