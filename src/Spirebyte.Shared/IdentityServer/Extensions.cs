@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Convey;
+﻿using Convey;
 using IdentityModel;
 using IdentityModel.AspNetCore.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,19 +15,19 @@ public static class Extensions
 {
     private const string SectionName = "jwt";
 
-    
-    public static IConveyBuilder AddIdentityServerAuthentication(this IConveyBuilder builder, string sectionName = SectionName,
+
+    public static IConveyBuilder AddIdentityServerAuthentication(this IConveyBuilder builder,
+        string sectionName = SectionName,
         Action<JwtBearerOptions> optionsFactory = null, bool withBasic = false)
     {
-        if (string.IsNullOrWhiteSpace(sectionName))
-        {
-            sectionName = SectionName;
-        }
+        if (string.IsNullOrWhiteSpace(sectionName)) sectionName = SectionName;
 
         var options = builder.GetOptions<JwtOptions>(sectionName);
-        return withBasic ? builder.AddIdentityServerAuthenticationWithBasicToken(options, optionsFactory) : builder.AddIdentityServerAuthentication(options, optionsFactory);
+        return withBasic
+            ? builder.AddIdentityServerAuthenticationWithBasicToken(options, optionsFactory)
+            : builder.AddIdentityServerAuthentication(options, optionsFactory);
     }
-    
+
     private static IConveyBuilder AddIdentityServerAuthentication(this IConveyBuilder builder, JwtOptions options,
         Action<JwtBearerOptions> optionsFactory = null)
     {
@@ -53,24 +51,18 @@ public static class Extensions
         };
 
         if (!string.IsNullOrWhiteSpace(options.AuthenticationType))
-        {
             tokenValidationParameters.AuthenticationType = options.AuthenticationType;
-        }
 
         if (!string.IsNullOrWhiteSpace(options.NameClaimType))
-        {
             tokenValidationParameters.NameClaimType = options.NameClaimType;
-        }
 
         if (!string.IsNullOrWhiteSpace(options.RoleClaimType))
-        {
             tokenValidationParameters.RoleClaimType = options.RoleClaimType;
-        }
-        
+
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        
+
         builder.Services.AddAuthentication("token")
- 
+
             // JWT tokens (default scheme)
             .AddJwtBearer("token", o =>
             {
@@ -82,29 +74,27 @@ public static class Extensions
                 o.RequireHttpsMetadata = options.RequireHttpsMetadata;
                 o.IncludeErrorDetails = options.IncludeErrorDetails;
                 o.TokenValidationParameters = tokenValidationParameters;
-                if (!string.IsNullOrWhiteSpace(options.Challenge))
-                {
-                    o.Challenge = options.Challenge;
-                }
+                if (!string.IsNullOrWhiteSpace(options.Challenge)) o.Challenge = options.Challenge;
 
                 optionsFactory?.Invoke(o);
-                
+
                 o.ForwardDefaultSelector = Selector.ForwardReferenceToken("introspection");
             })
- 
+
             // reference tokens
             .AddOAuth2Introspection("introspection", o =>
             {
                 o.Authority = options.Authority;
-                
+
                 o.ClientId = options.ClientId;
                 o.ClientSecret = options.ClientSecret;
             });
 
         return builder;
     }
-    
-    private static IConveyBuilder AddIdentityServerAuthenticationWithBasicToken(this IConveyBuilder builder, JwtOptions options,
+
+    private static IConveyBuilder AddIdentityServerAuthenticationWithBasicToken(this IConveyBuilder builder,
+        JwtOptions options,
         Action<JwtBearerOptions> optionsFactory = null)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -127,24 +117,18 @@ public static class Extensions
         };
 
         if (!string.IsNullOrWhiteSpace(options.AuthenticationType))
-        {
             tokenValidationParameters.AuthenticationType = options.AuthenticationType;
-        }
 
         if (!string.IsNullOrWhiteSpace(options.NameClaimType))
-        {
             tokenValidationParameters.NameClaimType = options.NameClaimType;
-        }
 
         if (!string.IsNullOrWhiteSpace(options.RoleClaimType))
-        {
             tokenValidationParameters.RoleClaimType = options.RoleClaimType;
-        }
-        
+
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        
+
         builder.Services.AddAuthentication("token")
- 
+
             // JWT tokens (default scheme)
             .AddJwtBearer("token", o =>
             {
@@ -156,16 +140,13 @@ public static class Extensions
                 o.RequireHttpsMetadata = options.RequireHttpsMetadata;
                 o.IncludeErrorDetails = options.IncludeErrorDetails;
                 o.TokenValidationParameters = tokenValidationParameters;
-                if (!string.IsNullOrWhiteSpace(options.Challenge))
-                {
-                    o.Challenge = options.Challenge;
-                }
+                if (!string.IsNullOrWhiteSpace(options.Challenge)) o.Challenge = options.Challenge;
 
                 optionsFactory?.Invoke(o);
-                
+
                 o.ForwardDefaultSelector = ForwardReferenceTokenWithBasic("introspection", "basic-introspection");
             })
- 
+
             // reference tokens
             .AddExtendedOAuth2Introspection("introspection", o =>
             {
@@ -188,24 +169,24 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Provides a forwarding func for JWT vs reference tokens (based on existence of dot in token)
+    ///     Provides a forwarding func for JWT vs reference tokens (based on existence of dot in token)
     /// </summary>
     /// <param name="introspectionScheme">Scheme name of the introspection handler</param>
     /// <returns></returns>
-    public static Func<HttpContext, string> ForwardReferenceTokenWithBasic(string introspectionScheme = "Introspection", string basicIntrospectionScheme = "Basic-introspection")
+    public static Func<HttpContext, string> ForwardReferenceTokenWithBasic(string introspectionScheme = "Introspection",
+        string basicIntrospectionScheme = "Basic-introspection")
     {
         return context =>
         {
             var (str3, str4) = Selector.GetSchemeAndCredential(context);
             if (str3.Equals("Bearer", StringComparison.OrdinalIgnoreCase) && !str4.Contains("."))
-            {
                 return introspectionScheme;
-            }
             return basicIntrospectionScheme;
         };
     }
-    
-    public static AuthorizationOptions AddEitherOrScopePolicy(this AuthorizationOptions options, string policyName, string firstScope, string secondScope)
+
+    public static AuthorizationOptions AddEitherOrScopePolicy(this AuthorizationOptions options, string policyName,
+        string firstScope, string secondScope)
     {
         options.AddPolicy(policyName, p =>
         {
@@ -215,9 +196,12 @@ public static class Extensions
 
         return options;
     }
-    
-    public static AuthorizationPolicyBuilder RequireEitherOrScope(this AuthorizationPolicyBuilder builder, string firstScope, string secondScope)
+
+    public static AuthorizationPolicyBuilder RequireEitherOrScope(this AuthorizationPolicyBuilder builder,
+        string firstScope, string secondScope)
     {
-        return builder.RequireAssertion(context => context.User.HasClaim(c => c.Type == JwtClaimTypes.Scope && (c.Value == firstScope || c.Value == secondScope)));
+        return builder.RequireAssertion(context =>
+            context.User.HasClaim(c =>
+                c.Type == JwtClaimTypes.Scope && (c.Value == firstScope || c.Value == secondScope)));
     }
 }

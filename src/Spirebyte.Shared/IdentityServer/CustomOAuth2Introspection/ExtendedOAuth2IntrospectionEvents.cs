@@ -3,46 +3,59 @@
 
 using Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context;
 
-namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection
+namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection;
+
+/// <summary>
+///     Default implementation.
+/// </summary>
+public class ExtendedOAuth2IntrospectionEvents
 {
     /// <summary>
-    /// Default implementation.
+    ///     Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event
+    ///     unless suppressed.
     /// </summary>
-    public class ExtendedOAuth2IntrospectionEvents
+    public Func<AuthenticationFailedContext, Task> OnAuthenticationFailed { get; set; } = context => Task.CompletedTask;
+
+    /// <summary>
+    ///     Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
+    /// </summary>
+    public Func<TokenValidatedContext, Task> OnTokenValidated { get; set; } = context => Task.CompletedTask;
+
+    /// <summary>
+    ///     Invoked when client assertion need to be updated.
+    /// </summary>
+    public Func<UpdateClientAssertionContext, Task> OnUpdateClientAssertion { get; set; } =
+        context => Task.CompletedTask;
+
+    public Func<OAuth2ChallengeContext, Task> OnChallenge { get; set; } = context => Task.CompletedTask;
+
+    /// <summary>
+    ///     Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event
+    ///     unless suppressed.
+    /// </summary>
+    public virtual Task AuthenticationFailed(AuthenticationFailedContext context)
     {
-        /// <summary>
-        /// Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event unless suppressed.
-        /// </summary>
-        public Func<AuthenticationFailedContext, Task> OnAuthenticationFailed { get; set; } = context => Task.CompletedTask;
+        return OnAuthenticationFailed(context);
+    }
 
-        /// <summary>
-        /// Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
-        /// </summary>
-        public Func<TokenValidatedContext, Task> OnTokenValidated { get; set; } = context => Task.CompletedTask;
+    /// <summary>
+    ///     Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
+    /// </summary>
+    public virtual Task TokenValidated(TokenValidatedContext context)
+    {
+        return OnTokenValidated(context);
+    }
 
-        /// <summary>
-        /// Invoked when client assertion need to be updated.
-        /// </summary>
-        public Func<UpdateClientAssertionContext, Task> OnUpdateClientAssertion { get; set; } = context => Task.CompletedTask;
-        
-        public Func<OAuth2ChallengeContext, Task> OnChallenge { get; set; } = context => Task.CompletedTask;
+    /// <summary>
+    ///     Invoked when client assertion need to be updated.
+    /// </summary>
+    public virtual Task UpdateClientAssertion(UpdateClientAssertionContext context)
+    {
+        return OnUpdateClientAssertion(context);
+    }
 
-        /// <summary>
-        /// Invoked if exceptions are thrown during request processing. The exceptions will be re-thrown after this event unless suppressed.
-        /// </summary>
-        public virtual Task AuthenticationFailed(AuthenticationFailedContext context) => OnAuthenticationFailed(context);
-
-        /// <summary>
-        /// Invoked after the security token has passed validation and a ClaimsIdentity has been generated.
-        /// </summary>
-        public virtual Task TokenValidated(TokenValidatedContext context) => OnTokenValidated(context);
-
-        /// <summary>
-        /// Invoked when client assertion need to be updated.
-        /// </summary>
-        public virtual Task UpdateClientAssertion(UpdateClientAssertionContext context) => OnUpdateClientAssertion(context);
-        
-        public virtual Task Challenge(OAuth2ChallengeContext context) => OnChallenge(context);
-
+    public virtual Task Challenge(OAuth2ChallengeContext context)
+    {
+        return OnChallenge(context);
     }
 }

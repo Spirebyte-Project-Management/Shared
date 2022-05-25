@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Convey.HTTP;
+﻿using Convey.HTTP;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Open.Serialization.Json;
@@ -17,7 +15,7 @@ public static class Extensions
 
         return services;
     }
-    
+
     public static IServiceCollection AddCorrelationContextFactories(this IServiceCollection services)
     {
         services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();

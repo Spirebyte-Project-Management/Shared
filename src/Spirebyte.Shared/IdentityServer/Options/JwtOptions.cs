@@ -28,7 +28,7 @@ public class JwtOptions
     public string AuthenticationType { get; set; }
     public string NameClaimType { get; set; }
     public string RoleClaimType { get; set; }
-    
+
     public string ClientId { get; set; }
     public string ClientSecret { get; set; }
 }

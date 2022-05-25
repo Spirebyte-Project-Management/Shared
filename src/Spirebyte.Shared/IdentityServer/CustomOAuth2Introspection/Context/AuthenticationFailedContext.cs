@@ -4,25 +4,26 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
-namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context
+namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Context;
+
+/// <summary>
+///     Context for the AuthenticationFailed event
+/// </summary>
+public class AuthenticationFailedContext : ResultContext<ExtendedOAuth2IntrospectionOptions>
 {
     /// <summary>
-    /// Context for the AuthenticationFailed event
+    ///     ctor
     /// </summary>
-    public class AuthenticationFailedContext : ResultContext<ExtendedOAuth2IntrospectionOptions>
+    public AuthenticationFailedContext(
+        HttpContext context,
+        AuthenticationScheme scheme,
+        ExtendedOAuth2IntrospectionOptions options)
+        : base(context, scheme, options)
     {
-        /// <summary>
-        /// ctor
-        /// </summary>
-        public AuthenticationFailedContext(
-            HttpContext context,
-            AuthenticationScheme scheme,
-            ExtendedOAuth2IntrospectionOptions options)
-            : base(context, scheme, options) { }
-
-        /// <summary>
-        /// The error
-        /// </summary>
-        public string Error { get; set; }
     }
+
+    /// <summary>
+    ///     The error
+    /// </summary>
+    public string Error { get; set; }
 }

@@ -9,22 +9,16 @@ public static class TokenRetrieval
     {
         return request =>
         {
-            string authorization = request.Headers["Authorization"].FirstOrDefault();
-            
-            if (string.IsNullOrEmpty(authorization))
-            {
-                return null;
-            }
+            var authorization = request.Headers["Authorization"].FirstOrDefault();
+
+            if (string.IsNullOrEmpty(authorization)) return null;
 
             if (authorization.StartsWith(scheme + " ", StringComparison.OrdinalIgnoreCase))
             {
                 var authToken = authorization.Substring(scheme.Length + 1).Trim();
                 var authBase64 = Encoding.UTF8.GetString(Convert.FromBase64String(authToken));
                 var authSplit = authBase64.Split(Convert.ToChar(":"), 2);
-                if (authSplit.Length > 1)
-                {
-                    return authSplit[1];
-                }
+                if (authSplit.Length > 1) return authSplit[1];
             }
 
             return null;
@@ -32,7 +26,7 @@ public static class TokenRetrieval
     }
 
     /// <summary>
-    /// Reads the token from a query string parameter.
+    ///     Reads the token from a query string parameter.
     /// </summary>
     /// <param name="name">The name (defaults to access_token).</param>
     /// <returns></returns>

@@ -1,5 +1,3 @@
-using System;
-
 namespace Spirebyte.Shared.Contexts.Interfaces;
 
 public interface IAppContext

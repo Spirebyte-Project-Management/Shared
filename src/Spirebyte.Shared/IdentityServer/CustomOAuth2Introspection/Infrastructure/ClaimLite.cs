@@ -4,11 +4,10 @@
 
 #pragma warning disable 1591
 
-namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure
+namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure;
+
+public class ClaimLite
 {
-    public class ClaimLite
-    {
-        public string Type { get; set; }
-        public string Value { get; set; }
-    }
+    public string Type { get; set; }
+    public string Value { get; set; }
 }

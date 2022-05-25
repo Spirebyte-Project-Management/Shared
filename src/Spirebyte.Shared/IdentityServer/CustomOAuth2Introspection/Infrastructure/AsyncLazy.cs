@@ -1,44 +1,41 @@
 ﻿// Copyright (c) Dominick Baier & Brock Allen. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure
+namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure;
+
+internal sealed class AsyncLazy<T>
 {
-    internal sealed class AsyncLazy<T>
+    private readonly object _lazyInitializationGuard = new();
+    private readonly Func<Task<T>> _taskFactory;
+    private Lazy<Task<T>> _lazyTaskFactory;
+
+    public AsyncLazy(Func<Task<T>> taskFactory)
     {
-        private Lazy<Task<T>> _lazyTaskFactory;
-        private readonly Func<Task<T>> _taskFactory;
-        private readonly object _lazyInitializationGuard = new object();
+        _taskFactory = taskFactory;
+        _lazyTaskFactory = InitLazy(_taskFactory);
+    }
 
-        public AsyncLazy(Func<Task<T>> taskFactory)
+    public Task<T> Value
+    {
+        get
         {
-            _taskFactory = taskFactory;
-            _lazyTaskFactory = InitLazy(_taskFactory);
-        }
+            //If the lazy value is not yet created, we should just return the lazy value (which will create it)
+            //If the value has been created and the value (which is a Task<T>) is not faulted, we should just return the value;
+            if (!(_lazyTaskFactory.IsValueCreated && _lazyTaskFactory.Value.IsFaulted))
+                return _lazyTaskFactory.Value;
 
-        public Task<T> Value
-        {
-            get
+            lock (_lazyInitializationGuard)
             {
-                //If the lazy value is not yet created, we should just return the lazy value (which will create it)
-                //If the value has been created and the value (which is a Task<T>) is not faulted, we should just return the value;
-                if (!(_lazyTaskFactory.IsValueCreated && _lazyTaskFactory.Value.IsFaulted))
-                    return _lazyTaskFactory.Value;
+                if (_lazyTaskFactory.IsValueCreated && _lazyTaskFactory.Value.IsFaulted)
+                    _lazyTaskFactory = InitLazy(_taskFactory);
 
-                lock (_lazyInitializationGuard)
-                {
-                    if (_lazyTaskFactory.IsValueCreated && _lazyTaskFactory.Value.IsFaulted)
-                    {
-                        _lazyTaskFactory = InitLazy(_taskFactory);
-                    }
-
-                    return _lazyTaskFactory.Value;
-                }
+                return _lazyTaskFactory.Value;
             }
         }
+    }
 
-        private static Lazy<Task<T>> InitLazy(Func<Task<T>> taskFactory)
-        {
-            return new Lazy<Task<T>>(() => Task.Run(taskFactory));
-        }
+    private static Lazy<Task<T>> InitLazy(Func<Task<T>> taskFactory)
+    {
+        return new Lazy<Task<T>>(() => Task.Run(taskFactory));
     }
 }

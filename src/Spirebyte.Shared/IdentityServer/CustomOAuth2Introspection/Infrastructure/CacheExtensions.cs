@@ -9,22 +9,21 @@ using IdentityModel;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
-namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure
-{
-    internal static class CacheExtensions
-    {
-        private static readonly JsonSerializerOptions Options;
+namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure;
 
-        static CacheExtensions()
-        {
-            
+internal static class CacheExtensions
+{
+    private static readonly JsonSerializerOptions Options;
+
+    static CacheExtensions()
+    {
 #if NET6_0_OR_GREATER
-            Options = new JsonSerializerOptions
-            {
-                IgnoreReadOnlyFields = true,
-                IgnoreReadOnlyProperties = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
+        Options = new JsonSerializerOptions
+        {
+            IgnoreReadOnlyFields = true,
+            IgnoreReadOnlyProperties = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
 #else
             Options = new JsonSerializerOptions
             {
@@ -33,60 +32,52 @@ namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructu
                 IgnoreNullValues = true
             };
 #endif
-            
-            Options.Converters.Add(new ClaimConverter());
-        }
 
-        public static async Task<IEnumerable<Claim>> GetClaimsAsync(this IDistributedCache cache, ExtendedOAuth2IntrospectionOptions options, string token)
+        Options.Converters.Add(new ClaimConverter());
+    }
+
+    public static async Task<IEnumerable<Claim>> GetClaimsAsync(this IDistributedCache cache,
+        ExtendedOAuth2IntrospectionOptions options, string token)
+    {
+        var cacheKey = options.CacheKeyGenerator(options, token);
+        var bytes = await cache.GetAsync(cacheKey).ConfigureAwait(false);
+
+        if (bytes == null) return null;
+
+        var json = Encoding.UTF8.GetString(bytes);
+        return JsonSerializer.Deserialize<IEnumerable<Claim>>(json, Options);
+    }
+
+    public static async Task SetClaimsAsync(this IDistributedCache cache, ExtendedOAuth2IntrospectionOptions options,
+        string token, IEnumerable<Claim> claims, TimeSpan duration, ILogger logger)
+    {
+        var expClaim = claims.FirstOrDefault(c => c.Type == JwtClaimTypes.Expiration);
+        if (expClaim == null)
         {
-            var cacheKey = options.CacheKeyGenerator(options,token);
-            var bytes = await cache.GetAsync(cacheKey).ConfigureAwait(false);
-
-            if (bytes == null)
-            {
-                return null;
-            }
-
-            var json = Encoding.UTF8.GetString(bytes);
-            return JsonSerializer.Deserialize<IEnumerable<Claim>>(json, Options);
+            logger.LogWarning("No exp claim found on introspection response, can't cache.");
+            return;
         }
 
-        public static async Task SetClaimsAsync(this IDistributedCache cache, ExtendedOAuth2IntrospectionOptions options, string token, IEnumerable<Claim> claims, TimeSpan duration, ILogger logger)
-        {
-            var expClaim = claims.FirstOrDefault(c => c.Type == JwtClaimTypes.Expiration);
-            if (expClaim == null)
-            {
-                logger.LogWarning("No exp claim found on introspection response, can't cache.");
-                return;
-            }
-
-            var now = DateTimeOffset.UtcNow;
-            var expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value));
-            logger.LogDebug("Token will expire in {expiration}", expiration);
+        var now = DateTimeOffset.UtcNow;
+        var expiration = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value));
+        logger.LogDebug("Token will expire in {expiration}", expiration);
 
 
-            if (expiration <= now)
-            {
-                return;
-            }
+        if (expiration <= now) return;
 
-            // if the lifetime of the token is shorter than the duration, use the remaining token lifetime
-            DateTimeOffset absoluteLifetime;
-            if (expiration <= now.Add(duration))
-            {
-                absoluteLifetime = expiration;
-            }
-            else
-            {
-                absoluteLifetime = now.Add(duration);
-            }
+        // if the lifetime of the token is shorter than the duration, use the remaining token lifetime
+        DateTimeOffset absoluteLifetime;
+        if (expiration <= now.Add(duration))
+            absoluteLifetime = expiration;
+        else
+            absoluteLifetime = now.Add(duration);
 
-            var json = JsonSerializer.Serialize(claims, Options);
-            var bytes = Encoding.UTF8.GetBytes(json);
+        var json = JsonSerializer.Serialize(claims, Options);
+        var bytes = Encoding.UTF8.GetBytes(json);
 
-            logger.LogDebug("Setting cache item expiration to {expiration}", absoluteLifetime);
-            var cacheKey = options.CacheKeyGenerator(options, token);
-            await cache.SetAsync(cacheKey, bytes, new DistributedCacheEntryOptions { AbsoluteExpiration = absoluteLifetime }).ConfigureAwait(false);
-        }
+        logger.LogDebug("Setting cache item expiration to {expiration}", absoluteLifetime);
+        var cacheKey = options.CacheKeyGenerator(options, token);
+        await cache.SetAsync(cacheKey, bytes,
+            new DistributedCacheEntryOptions { AbsoluteExpiration = absoluteLifetime }).ConfigureAwait(false);
     }
 }

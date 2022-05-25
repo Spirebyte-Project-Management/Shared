@@ -8,27 +8,26 @@ using System.Text.Json.Serialization;
 
 #pragma warning disable 1591
 
-namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure
+namespace Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection.Infrastructure;
+
+public class ClaimConverter : JsonConverter<Claim>
 {
-    public class ClaimConverter : JsonConverter<Claim>
+    public override Claim Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override Claim Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var source = JsonSerializer.Deserialize<ClaimLite>(ref reader, options);
-            var target = new Claim(source.Type, source.Value);
-            
-            return target;
-        }
+        var source = JsonSerializer.Deserialize<ClaimLite>(ref reader, options);
+        var target = new Claim(source.Type, source.Value);
 
-        public override void Write(Utf8JsonWriter writer, Claim value, JsonSerializerOptions options)
-        {
-            var target = new ClaimLite
-            {
-                Type = value.Type,
-                Value = value.Value
-            };
+        return target;
+    }
 
-            JsonSerializer.Serialize(writer, target, options);
-        }
+    public override void Write(Utf8JsonWriter writer, Claim value, JsonSerializerOptions options)
+    {
+        var target = new ClaimLite
+        {
+            Type = value.Type,
+            Value = value.Value
+        };
+
+        JsonSerializer.Serialize(writer, target, options);
     }
 }
