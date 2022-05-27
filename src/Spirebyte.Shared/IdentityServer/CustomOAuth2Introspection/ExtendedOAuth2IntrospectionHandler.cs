@@ -175,10 +175,14 @@ public class ExtendedOAuth2IntrospectionHandler : AuthenticationHandler<Extended
 
         Response.StatusCode = 401;
 
+        if (!Request.Path.Value.Contains("git"))
+        {
+            Options.Challenge = "Bearer";
+        }
+        
         if (string.IsNullOrEmpty(eventContext.Error) &&
             string.IsNullOrEmpty(eventContext.ErrorDescription) &&
-            string.IsNullOrEmpty(eventContext.ErrorUri) && 
-            Request.Path.Value.Contains("git"))
+            string.IsNullOrEmpty(eventContext.ErrorUri))
         {
             Response.Headers.Append(HeaderNames.WWWAuthenticate, Options.Challenge);
         }
