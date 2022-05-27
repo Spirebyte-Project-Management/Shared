@@ -177,7 +177,8 @@ public class ExtendedOAuth2IntrospectionHandler : AuthenticationHandler<Extended
 
         if (string.IsNullOrEmpty(eventContext.Error) &&
             string.IsNullOrEmpty(eventContext.ErrorDescription) &&
-            string.IsNullOrEmpty(eventContext.ErrorUri))
+            string.IsNullOrEmpty(eventContext.ErrorUri) && 
+            Request.Path.Value.Contains("git"))
         {
             Response.Headers.Append(HeaderNames.WWWAuthenticate, Options.Challenge);
         }
