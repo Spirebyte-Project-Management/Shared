@@ -4,6 +4,10 @@ namespace Spirebyte.Shared.Changes;
 
 public static class ChangedFieldsHelper
 {
+    public static bool HasChanges(object oldObject, object newObject)
+    {
+        return GetChanges(oldObject, newObject).Length == 0;
+    }
     public static Change[] GetChanges(object oldObject, object newObject)
     {
         var newProperties = newObject.GetType().GetProperties();
