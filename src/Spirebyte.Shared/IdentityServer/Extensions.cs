@@ -1,10 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using Convey;
 using IdentityModel;
 using IdentityModel.AspNetCore.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection;
@@ -17,7 +17,7 @@ public static class Extensions
     private const string SectionName = "jwt";
 
 
-    public static IConveyBuilder AddIdentityServerAuthentication(this IConveyBuilder builder,
+    public static IServiceCollection AddIdentityServerAuthentication(this IServiceCollection services, IConfiguration configuration,
         string sectionName = SectionName,
         Action<JwtBearerOptions> optionsFactory = null, bool withBasic = false)
     {
@@ -25,13 +25,13 @@ public static class Extensions
 
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-        var options = builder.GetOptions<JwtOptions>(sectionName);
+        var options = configuration.GetValue<JwtOptions>(sectionName);
         return withBasic
-            ? builder.AddIdentityServerAuthenticationWithBasicToken(options, optionsFactory)
-            : builder.AddIdentityServerAuthentication(options, optionsFactory);
+            ? services.AddIdentityServerAuthenticationWithBasicToken(options, optionsFactory)
+            : services.AddIdentityServerAuthentication(options, optionsFactory);
     }
 
-    private static IConveyBuilder AddIdentityServerAuthentication(this IConveyBuilder builder, JwtOptions options,
+    private static IServiceCollection AddIdentityServerAuthentication(this IServiceCollection services, JwtOptions options,
         Action<JwtBearerOptions> optionsFactory = null)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -62,9 +62,9 @@ public static class Extensions
         if (!string.IsNullOrWhiteSpace(options.RoleClaimType))
             tokenValidationParameters.RoleClaimType = options.RoleClaimType;
 
-        builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-        builder.Services.AddAuthentication("token")
+        services.AddAuthentication("token")
 
             // JWT tokens (default scheme)
             .AddJwtBearer("token", o =>
@@ -93,10 +93,10 @@ public static class Extensions
                 o.ClientSecret = options.ClientSecret;
             });
 
-        return builder;
+        return services;
     }
 
-    private static IConveyBuilder AddIdentityServerAuthenticationWithBasicToken(this IConveyBuilder builder,
+    private static IServiceCollection AddIdentityServerAuthenticationWithBasicToken(this IServiceCollection services,
         JwtOptions options,
         Action<JwtBearerOptions> optionsFactory = null)
     {
@@ -128,9 +128,9 @@ public static class Extensions
         if (!string.IsNullOrWhiteSpace(options.RoleClaimType))
             tokenValidationParameters.RoleClaimType = options.RoleClaimType;
 
-        builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-        builder.Services.AddAuthentication("token")
+        services.AddAuthentication("token")
 
             // JWT tokens (default scheme)
             .AddJwtBearer("token", o =>
@@ -170,7 +170,7 @@ public static class Extensions
                 o.ClientSecret = options.ClientSecret;
             });
 
-        return builder;
+        return services;
     }
     
     /// <summary>
