@@ -21,21 +21,24 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.5
-
-    - name: Restore dependencies
-      run: nuget restore $PROJECT
+      uses: NuGet/setup-nuget@v1.0.6
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.x
 
+    - name: Restore dependencies
+      run: nuget restore $PROJECT
+
     - name: Build
       run: dotnet build $PROJECT --configuration $BUILD_CONFIG --no-restore
 
     - name: Run tests
       run: dotnet test $PROJECT --configuration $BUILD_CONFIG --no-restore --no-build --verbosity normal
+      
+    - name: Pack
+      run: dotnet pack $PROJECT -c Release
       
     - name: Publish Spirebyte.Shared
       uses: brandedoutcast/publish-nuget@v2.5.2
