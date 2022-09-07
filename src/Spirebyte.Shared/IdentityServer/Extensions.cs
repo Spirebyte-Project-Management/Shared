@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Spirebyte.Framework.Auth;
 using Spirebyte.Shared.IdentityServer.CustomOAuth2Introspection;
-using Spirebyte.Shared.IdentityServer.Options;
 
 namespace Spirebyte.Shared.IdentityServer;
 
@@ -25,13 +25,13 @@ public static class Extensions
 
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-        var options = configuration.GetValue<JwtOptions>(sectionName);
+        var options = configuration.GetValue<AuthOptions.JwtOptions>(sectionName);
         return withBasic
             ? services.AddIdentityServerAuthenticationWithBasicToken(options, optionsFactory)
             : services.AddIdentityServerAuthentication(options, optionsFactory);
     }
 
-    private static IServiceCollection AddIdentityServerAuthentication(this IServiceCollection services, JwtOptions options,
+    private static IServiceCollection AddIdentityServerAuthentication(this IServiceCollection services, AuthOptions.JwtOptions options,
         Action<JwtBearerOptions> optionsFactory = null)
     {
         var tokenValidationParameters = new TokenValidationParameters
@@ -97,7 +97,7 @@ public static class Extensions
     }
 
     private static IServiceCollection AddIdentityServerAuthenticationWithBasicToken(this IServiceCollection services,
-        JwtOptions options,
+        AuthOptions.JwtOptions options,
         Action<JwtBearerOptions> optionsFactory = null)
     {
         var tokenValidationParameters = new TokenValidationParameters
